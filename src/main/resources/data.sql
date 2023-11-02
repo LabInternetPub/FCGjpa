@@ -1,7 +1,7 @@
-insert into user_lab(username, name, second_name, email, password)
+insert into user_fcg(username, name, second_name, email, password)
 values('joanra', 'Joan Ramon', 'Roca', 'joanra@gmail.com', '{bcrypt}$2a$10$fVKfcc47q6lrNbeXangjYeY000dmjdjkdBxEOilqhapuTO5ZH0co2');
 
-insert into user_lab(username, name, second_name, email, password)
+insert into user_fcg(username, name, second_name, email, password)
 values('tina', 'Cristina', 'Garcia', 'tina@gmail.com', '{bcrypt}$2a$10$fVKfcc47q6lrNbeXangjYeY000dmjdjkdBxEOilqhapuTO5ZH0co2');
 
 insert into station(latitud, longitud, name) values('41.65434', '0.685766', 'Lleida-Pirineus');
@@ -36,5 +36,20 @@ insert into friend(username, user_username, friend) values('tina', 'tina', 'pepe
 insert into friend(username, user_username, friend) values('tina', 'tina', 'pepa');
 insert into friend(username, user_username, friend) values('joanra', 'joanra', 'pepa');
 
+INSERT INTO role(name) VALUES ('ROLE_USER');
+INSERT INTO role(name) VALUES ('ROLE_MODERATOR');
+INSERT INTO role(name) VALUES ('ROLE_ADMIN');
+
+INSERT INTO user_security (email, username, password) VALUES ('joanra@tecnocampus.cat', 'joanra', '$2a$10$fVKfcc47q6lrNbeXangjYeY000dmjdjkdBxEOilqhapuTO5ZH0co2');
+INSERT INTO user_security (email, username, password) VALUES ('tina@tecnocampus.cat', 'tina', '$2a$10$fVKfcc47q6lrNbeXangjYeY000dmjdjkdBxEOilqhapuTO5ZH0co2');
+INSERT INTO user_security (email, username, password) VALUES ('maria@tecnocampus.cat', 'maria', '$2a$10$fVKfcc47q6lrNbeXangjYeY000dmjdjkdBxEOilqhapuTO5ZH0co2');
+INSERT INTO user_security (email, username, password) VALUES ('admin@tecnocampus.cat', 'admin', '$2a$10$fVKfcc47q6lrNbeXangjYeY000dmjdjkdBxEOilqhapuTO5ZH0co2');
+
+
+INSERT INTO user_roles (USER_ID, ROLE_ID) VALUES (1, 1);
+INSERT INTO user_roles (USER_ID, ROLE_ID) VALUES (2, 3);
+INSERT INTO user_roles (USER_ID, ROLE_ID) VALUES (3, 1);
+INSERT INTO user_roles (USER_ID, ROLE_ID) VALUES (3, 3);
+INSERT INTO user_roles (USER_ID, ROLE_ID) VALUES (4, 3);
 
 

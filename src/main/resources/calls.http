@@ -1,11 +1,30 @@
+POST http://localhost:8080/authenticate
+content-type: application/json
+
+{
+  "username": "tina",
+  "password": "password123"
+}
+> {%
+    client.global.set("auth_token", response.headers.valueOf("Authorization"));
+    client.log("token: " + response.headers.valueOf("Authorization"));
+%}
+
 ###
 GET http://localhost:8080/api/users
+Authorization: {{auth_token}}
 
 ###
 GET http://localhost:8080/api/users/joanra
+Authorization: {{auth_token}}
+
+###
+GET http://localhost:8080/api/user
+Authorization: {{auth_token}}
 
 ###
 GET http://localhost:8080/api/users/tina
+Authorization: {{auth_token}}
 
 ### unexisting user
 GET http://localhost:8080/api/users/pepe
@@ -22,10 +41,31 @@ GET http://localhost:8080/api/stations/La Pobla de Segur
 
 ###
 GET http://localhost:8080/api/users/joanra/favoriteJourneys
+Authorization: {{auth_token}}
+
+###
+GET http://localhost:8080/api/user/favoriteJourneys
+Authorization: {{auth_token}}
 
 ###
 POST http://localhost:8080/api/users/joanra/favoriteJourney
 Content-Type: application/json
+
+{
+  "origin": "Lleida-Pirineus",
+  "destination": "Alcoletge",
+  "dayTimes": [
+    {"dayOfWeek" : "Friday",
+      "time" : "12:50"},
+    {"dayOfWeek" : "Tuesday",
+      "time" : "13:50"}
+  ]
+}
+
+###
+POST http://localhost:8080/api/user/favoriteJourney
+Content-Type: application/json
+Authorization: {{auth_token}}
 
 {
   "origin": "Lleida-Pirineus",
@@ -72,7 +112,12 @@ Content-Type: application/json
 GET http://localhost:8080/api/journeys
 
 ###
-GET http://localhost:8080/api/users/tina/friends
+GET http://localhost:8080/api/users/joanra/friends
+Authorization: {{auth_token}}
+
+###
+GET http://localhost:8080/api/user/friends
+Authorization: {{auth_token}}
 
 ###
 GET http://localhost:8080/api/users/friends
@@ -80,6 +125,20 @@ GET http://localhost:8080/api/users/friends
 ###
 POST http://localhost:8080/api/users/friends
 Content-Type: application/json
+
+{
+  "username": "joanra",
+  "friends": [
+    "manel",
+    "anna",
+    "clara"
+  ]
+}
+
+###
+POST http://localhost:8080/api/user/friends
+Content-Type: application/json
+Authorization: {{auth_token}}
 
 {
   "username": "joanra",
