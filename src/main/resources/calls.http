@@ -21,7 +21,7 @@ GET http://localhost:8080/api/stations/La Pobla de Segur
 GET http://localhost:8080/api/stations/La Pobla de Segur
 
 ###
-GET http://localhost:8080/api/users/tina/favoriteJourneys
+GET http://localhost:8080/api/users/joanra/favoriteJourneys
 
 ###
 POST http://localhost:8080/api/users/joanra/favoriteJourney
@@ -31,7 +31,7 @@ Content-Type: application/json
   "origin": "Lleida-Pirineus",
   "destination": "Alcoletge",
   "dayTimes": [
-    {"dayOfWeek" : "Monday",
+    {"dayOfWeek" : "Friday",
       "time" : "12:50"},
     {"dayOfWeek" : "Tuesday",
       "time" : "13:50"}
@@ -54,7 +54,7 @@ Content-Type: application/json
 }
 
 ### station name too short
-POST http://localhost:80-80/api/users/joanra/favoriteJourney
+POST http://localhost:8080/api/users/joanra/favoriteJourney
 Content-Type: application/json
 
 {

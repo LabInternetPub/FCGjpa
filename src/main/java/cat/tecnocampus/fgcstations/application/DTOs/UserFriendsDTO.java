@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 
 import java.util.List;
 
-public class FriendsDTO {
+public class UserFriendsDTO {
     @Pattern(regexp = "^[a-z]*")
     @Size(min=3, max=255)
     private String username;

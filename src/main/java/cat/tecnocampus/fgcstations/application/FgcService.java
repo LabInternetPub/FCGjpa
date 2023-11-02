@@ -1,18 +1,15 @@
 package cat.tecnocampus.fgcstations.application;
 
 
-import cat.tecnocampus.fgcstations.application.DTOs.DayTimeStartDTO;
-import cat.tecnocampus.fgcstations.application.DTOs.FavoriteJourneyDTO;
-import cat.tecnocampus.fgcstations.application.DTOs.FriendsDTO;
+import cat.tecnocampus.fgcstations.application.DTOs.*;
 import cat.tecnocampus.fgcstations.application.exception.UserDoesNotExistsException;
+import cat.tecnocampus.fgcstations.application.mapper.MapperHelper;
 import cat.tecnocampus.fgcstations.domain.*;
 import cat.tecnocampus.fgcstations.persistence.*;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class FgcService {
@@ -35,114 +32,92 @@ public class FgcService {
         this.dayTimeStartDao = dayTimeStartDao;
     }
 
-    public List<Station> getStations() {
-        return stationDAO.findAll();
+    public List<StationDTO> getStations() {
+        return stationDAO.findAll().stream().map(s -> new StationDTO(s.getName(), s.getLongitud(), s.getLatitud())).toList();
     }
 
-    public Station getStation(String nom) {
-        return stationDAO.findByName(nom).orElseThrow();
+    public StationDTO getStation(String nom) {
+        return MapperHelper.stationToStationDTO(stationDAO.findByName(nom).orElseThrow());
     }
 
-    public User getUser(String username) {
+    public UserDTO getUser(String username) {
         //get the user
-        User user = userDAO.findById(username).orElseThrow(() -> new UserDoesNotExistsException("user " + username + " doesn't exist"));
-
-        //get the user's favorite journey
+        User user = getDomainUser(username);
         user.setFavoriteJourneyList(getFavoriteJourneys(username));
 
-        return user;
+        return MapperHelper.userToUserDTO(user);
     }
 
-    public List<User> getUsers() {
+    private User getDomainUser(String username) {
+        return userDAO.findById(username).orElseThrow(() -> new UserDoesNotExistsException("user " + username + " doesn't exist"));
+    }
+
+    public List<UserDTO> getUsers() {
         //get the users
         List<User> users = userDAO.findAll();
 
         //get the users' favorite journeys
-        users.forEach(u -> u.setFavoriteJourneyList(favoriteJourneyDAO.findByUser(u)));
+        users.forEach(u -> u.setFavoriteJourneyList(getFavoriteJourneys(u.getUsername())));
 
-        return users;
+        return users.stream().map(u -> MapperHelper.userToUserDTO(u)).toList();
     }
 
-    public List<Journey> getAllJourneys() {
-        var journeys = journeyDAO.findAll();
-        return journeys;
-    }
-    public boolean existsUser(String username) {
-        return userDAO.findById(username).isPresent();
-    }
-
-    public void addUserFavoriteJourney(String username, FavoriteJourneyDTO favoriteJourneyDTO) {  ////////////
-        FavoriteJourney favoriteJourney = convertFavoriteJourneyDTO(favoriteJourneyDTO);
-        favoriteJourneyDAO.save(favoriteJourney);
-    }
-
-    private void saveFavoriteJourney(FavoriteJourney favoriteJourney) {
-        favoriteJourneyDAO.save(favoriteJourney);
-    }
-
-    public List<FavoriteJourney> getFavoriteJourneys(String username) {
-        User user = userDAO.findById(username).orElseThrow(() -> new UserDoesNotExistsException("user " + username + " doesn't exist"));
+    private List<FavoriteJourney> getFavoriteJourneys(String username) {
+        User user = getDomainUser(username);
         List<FavoriteJourney> favoriteJourneys = favoriteJourneyDAO.findByUser(user);
         favoriteJourneys.forEach(f -> f.setStartList(dayTimeStartDao.findByFavoriteJourney_Id(f.getId())));
 
         return favoriteJourneys;
     }
 
-    private FavoriteJourney convertFavoriteJourneyDTO(FavoriteJourneyDTO favoriteJourneyDTO) {
+    public List<JourneyDTO> getAllJourneys() {
+        return journeyDAO.findAll().stream().map(j -> MapperHelper.journeyToJourneyDTO(j)).toList();
+    }
+
+    public List<FavoriteJourneyDTO> getFavoriteJourneysDTO(String username) {
+        User user = userDAO.findById(username).orElseThrow(() -> new UserDoesNotExistsException("user " + username + " doesn't exist"));
+        List<FavoriteJourney> favoriteJourneys = favoriteJourneyDAO.findByUser(user);
+        favoriteJourneys.forEach(f -> f.setStartList(dayTimeStartDao.findByFavoriteJourney_Id(f.getId())));
+
+        return favoriteJourneys.stream().map(f -> MapperHelper.favoriteJourneyToFavoriteJourneyDTO(f)).toList();
+    }
+    public void addUserFavoriteJourney(String username, FavoriteJourneyDTO favoriteJourneyDTO) {
+        FavoriteJourney favoriteJourney = convertFavoriteJourneyDTO(username, favoriteJourneyDTO);
+        journeyDAO.save(favoriteJourney.getJourney());
+        favoriteJourneyDAO.save(favoriteJourney);
+        favoriteJourney.getStartList().forEach(dayTimeStartDao::save);
+    }
+
+    private FavoriteJourney convertFavoriteJourneyDTO(String username, FavoriteJourneyDTO favoriteJourneyDTO) {
         FavoriteJourney favoriteJourney = new FavoriteJourney();
+        favoriteJourney.setUser(getDomainUser(username));
         favoriteJourney.setId(UUID.randomUUID().toString());
         Journey journey = new Journey(stationDAO.findByName(favoriteJourneyDTO.getOrigin()).orElseThrow(),
-                                      stationDAO.findByName(favoriteJourneyDTO.getDestination()).orElseThrow());
+                stationDAO.findByName(favoriteJourneyDTO.getDestination()).orElseThrow());
         favoriteJourney.setJourney(journey);
 
-        List<DayTimeStart> dayTimeStarts = favoriteJourneyDTO.getDayTimes().stream().map(this::convertDayTimeStartDTO).collect(Collectors.toList());
+        List<DayTimeStart> dayTimeStarts = favoriteJourneyDTO.getDayTimes().stream().map(dt -> convertDayTimeStartDTO(dt, favoriteJourney)).toList();
         favoriteJourney.setDateTimeStarts(dayTimeStarts);
 
         return favoriteJourney;
     }
 
-    private DayTimeStart convertDayTimeStartDTO(DayTimeStartDTO dayTimeStartDTO) {
-        return new DayTimeStart(dayTimeStartDTO.getDayOfWeek(), dayTimeStartDTO.getTime(), UUID.randomUUID().toString());
+    private DayTimeStart convertDayTimeStartDTO(DayTimeStartDTO dayTimeStartDTO, FavoriteJourney favoriteJourney) {
+        return new DayTimeStart(dayTimeStartDTO.getDayOfWeek(), dayTimeStartDTO.getTime(), UUID.randomUUID().toString(), favoriteJourney);
     }
 
-    public FriendsDTO getUserFriends(String username) {
-        User user = userDAO.findById(username).orElseThrow(() -> new UserDoesNotExistsException("user " + username + " doesn't exist"));
+    public UserFriendsDTO getUserFriends(String username) {
+        User user = getDomainUser(username);
         List<Friend> friends = friendDAO.findByIdUsername(username);
-        return buildFriendsDTO(friends, username);
+        return MapperHelper.listOfAUserFriendsToUserFriendsDTO(friends);
     }
 
-    private FriendsDTO buildFriendsDTO(List<Friend> friends, String username) {
-        FriendsDTO friendsDTO = new FriendsDTO();
-        friendsDTO.setUsername(username);
-        if (friends.size() == 0) {
-            friendsDTO.setFriends(new ArrayList<>());
-        }
-        else {
-            friendsDTO.setFriends(friends.stream().map(Friend::getFriend).toList());
-        }
-        return friendsDTO;
+    public List<UserFriendsDTO> getAllUserFriends() {
+        return MapperHelper.allUserFriendListToListUserFriendsDTO(friendDAO.findAll());
     }
 
-    public List<Friend> getAllUserFriends() {
-        return friendDAO.findAll();
-    }
-
-    public void saveFriends(FriendsDTO friendsDTO) {
-        if (!existsUser(friendsDTO.getUsername())) {
-            UserDoesNotExistsException e = new UserDoesNotExistsException("User " + friendsDTO.getUsername() + " doesn't exist");
-            e.setUsername(friendsDTO.getUsername());
-            throw e;
-        }
-
-        Friend friend = convertFriendsDTO(friendsDTO);
-        friendDAO.save(friend); ///////////////////////////////////////////
-    }
-
-    private Friend convertFriendsDTO(FriendsDTO friendsDTO) {
-        Friend friend = new Friend();
-        List<String> friendsList = new ArrayList<>();
-       // friend.setUsername(friendsDTO.getUsername());
-        //friend.setFriends(friendsDTO.getFriends());
-        return friend;
+    public void saveFriends(UserFriendsDTO userFriendsDTO) {
+        User user = userDAO.findById(userFriendsDTO.getUsername()).orElseThrow(() -> new UserDoesNotExistsException("User " + userFriendsDTO.getUsername() + " doesn't exist"));
+        friendDAO.saveAll(MapperHelper.friendsDTOToUserListOfFriends(user, userFriendsDTO));
     }
 }

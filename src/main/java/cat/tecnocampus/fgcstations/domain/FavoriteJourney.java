@@ -3,6 +3,7 @@ package cat.tecnocampus.fgcstations.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -23,6 +24,7 @@ public class FavoriteJourney {
 
 
     public FavoriteJourney() {
+        startList = new ArrayList<>();
     }
 
     public String getId() {
@@ -51,6 +53,14 @@ public class FavoriteJourney {
 
     public void setStartList(List<DayTimeStart> startList) {
         this.startList = startList;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override

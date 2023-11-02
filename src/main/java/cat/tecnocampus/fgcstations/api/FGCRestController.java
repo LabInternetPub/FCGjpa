@@ -1,9 +1,7 @@
 package cat.tecnocampus.fgcstations.api;
 
-import cat.tecnocampus.fgcstations.application.DTOs.FavoriteJourneyDTO;
-import cat.tecnocampus.fgcstations.application.DTOs.FriendsDTO;
+import cat.tecnocampus.fgcstations.application.DTOs.*;
 import cat.tecnocampus.fgcstations.application.FgcService;
-import cat.tecnocampus.fgcstations.domain.*;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,59 +10,59 @@ import java.util.List;
 @RestController
 @RequestMapping("api/")
 public class FGCRestController {
-    private FgcService fgcController;
+    private final FgcService fgcService;
 
     public FGCRestController(FgcService fgcController) {
-        this.fgcController = fgcController;
+        this.fgcService = fgcController;
     }
 
     @GetMapping("/users")
-    public List<User> getUsers() {
-        return fgcController.getUsers();
+    public List<UserDTO> getUsers() {
+        return fgcService.getUsers();
     }
 
     @GetMapping("/users/{username}")
-    public User getUser(@PathVariable String username) {
-        return fgcController.getUser(username);
+    public UserDTO getUser(@PathVariable String username) {
+        return fgcService.getUser(username);
     }
 
     @GetMapping("/stations")
-    public List<Station> getStations() {
-        return fgcController.getStations();
+    public List<StationDTO> getStations() {
+        return fgcService.getStations();
      }
 
     @GetMapping("/stations/{nom}")
-    public Station getStation(@PathVariable String nom) {
-        return fgcController.getStation(nom);
+    public StationDTO getStation(@PathVariable String nom) {
+        return fgcService.getStation(nom);
     }
 
     @PostMapping("/users/{userName}/favoriteJourney")
     public void postAddFavoriteJourney(@PathVariable String userName, @RequestBody @Valid FavoriteJourneyDTO favoriteJourney) {
-        fgcController.addUserFavoriteJourney(userName, favoriteJourney);
+        fgcService.addUserFavoriteJourney(userName, favoriteJourney);
     }
 
     @GetMapping("/users/{userName}/favoriteJourneys")
-    public List<FavoriteJourney> getFavoriteJourneys(@PathVariable String userName) {
-        return fgcController.getFavoriteJourneys(userName);
+    public List<FavoriteJourneyDTO> getFavoriteJourneys(@PathVariable String userName) {
+        return fgcService.getFavoriteJourneysDTO(userName);
     }
 
     @GetMapping("/journeys")
-    public List<Journey> getAllJourneys() {
-        return fgcController.getAllJourneys();
+    public List<JourneyDTO> getAllJourneys() {
+        return fgcService.getAllJourneys();
     }
 
     @GetMapping("/users/{userName}/friends")
-    public FriendsDTO getFriends(@PathVariable String userName) {
-        return fgcController.getUserFriends(userName);
+    public UserFriendsDTO getFriends(@PathVariable String userName) {
+        return fgcService.getUserFriends(userName);
     }
 
     @GetMapping("/users/friends")
-    public List<Friend> getAllFriends() {
-        return fgcController.getAllUserFriends();
+    public List<UserFriendsDTO> getAllFriends() {
+        return fgcService.getAllUserFriends();
     }
 
     @PostMapping("/users/friends")
-    public void saveFriends(@RequestBody @Valid FriendsDTO friendsDTO) {
-        fgcController.saveFriends(friendsDTO);
+    public void saveFriends(@RequestBody @Valid UserFriendsDTO userFriendsDTO) {
+        fgcService.saveFriends(userFriendsDTO);
     }
 }

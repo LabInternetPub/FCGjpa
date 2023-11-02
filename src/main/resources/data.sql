@@ -31,10 +31,10 @@ insert into day_time_start (id, time_start, day_of_week, favorite_journey_id) va
 insert into day_time_start (id, time_start, day_of_week, favorite_journey_id) values ('2', '12:30', 'Tuesday', '1');
 
 
-insert into friend(username, friend) values('tina', 'maria');
-insert into friend(username, friend) values('tina', 'pepe');
-insert into friend(username, friend) values('tina', 'pepa');
-insert into friend(username, friend) values('joanra', 'pepa');
+insert into friend(username, user_username, friend) values('tina', 'tina', 'maria');
+insert into friend(username, user_username, friend) values('tina', 'tina', 'pepe');
+insert into friend(username, user_username, friend) values('tina', 'tina', 'pepa');
+insert into friend(username, user_username, friend) values('joanra', 'joanra', 'pepa');
 
 
 

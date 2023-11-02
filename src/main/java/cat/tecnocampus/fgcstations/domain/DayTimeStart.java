@@ -19,10 +19,11 @@ public class DayTimeStart {
 
     public DayTimeStart() {}
 
-    public DayTimeStart(String day, String time, String id) {
+    public DayTimeStart(String day, String time, String id, FavoriteJourney favoriteJourney) {
         dayOfWeek = day;
         timeStart = time;
         this.id = id;
+        this.favoriteJourney = favoriteJourney;
     }
 
     public String getId() {

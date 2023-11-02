@@ -14,6 +14,11 @@ public class DayTimeStartDTO {
     public DayTimeStartDTO() {
     }
 
+    public DayTimeStartDTO(String dayOfWeek, String time) {
+        this.dayOfWeek = dayOfWeek;
+        this.time = time;
+    }
+
     public void setDayOfWeek(String dayOfWeek) {
         this.dayOfWeek = dayOfWeek;
     }
@@ -29,4 +34,6 @@ public class DayTimeStartDTO {
     public String getTime() {
         return time;
     }
+
+
 }
