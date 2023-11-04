@@ -28,12 +28,15 @@ Authorization: {{auth_token}}
 
 ### unexisting user
 GET http://localhost:8080/api/users/pepe
+Authorization: {{auth_token}}
 
 ###
 GET http://localhost:8080/api/stations
+Authorization: {{auth_token}}
 
 ###
 GET http://localhost:8080/api/stations/La Pobla de Segur
+Authorization: {{auth_token}}
 
 
 ### unexisting station

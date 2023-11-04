@@ -1,4 +1,4 @@
-package cat.tecnocampus.fgcstations.domain;
+package cat.tecnocampus.fgcstations.security.entities;
 
 public enum ERole {
     ROLE_USER,

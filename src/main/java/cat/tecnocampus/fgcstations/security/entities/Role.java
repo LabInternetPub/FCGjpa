@@ -1,4 +1,4 @@
-package cat.tecnocampus.fgcstations.domain;
+package cat.tecnocampus.fgcstations.security.entities;
 
 import jakarta.persistence.*;
 

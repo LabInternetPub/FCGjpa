@@ -1,7 +1,7 @@
 package cat.tecnocampus.fgcstations.security.configuration;
 
-import cat.tecnocampus.fgcstations.domain.UserSecurity;
-import cat.tecnocampus.fgcstations.persistence.UserSecurityRepository;
+import cat.tecnocampus.fgcstations.security.entities.UserSecurity;
+import cat.tecnocampus.fgcstations.security.entities.UserSecurityRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,7 +20,7 @@ public class UserSecurityDetailsService implements UserDetailsService {
         UserSecurity user = userSecurityRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
 
-        return UserSecurityDetails.build(user);
+        return user;
     }
 
 }

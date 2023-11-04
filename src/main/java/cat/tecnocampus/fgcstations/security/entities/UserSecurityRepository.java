@@ -1,6 +1,6 @@
-package cat.tecnocampus.fgcstations.persistence;
+package cat.tecnocampus.fgcstations.security.entities;
 
-import cat.tecnocampus.fgcstations.domain.UserSecurity;
+import cat.tecnocampus.fgcstations.security.entities.UserSecurity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

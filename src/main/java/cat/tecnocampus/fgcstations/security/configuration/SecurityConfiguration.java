@@ -6,11 +6,11 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
@@ -39,22 +39,19 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-               // .headers(headers -> headers.frameOptions(frameOptions -> frameOptions
-               //         .sameOrigin()))
-               // .csrf(csrf -> csrf
-               //         .ignoringRequestMatchers(PathRequest.toH2Console()))
-                .csrf(AbstractHttpConfigurer::disable)
+                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions
+                        .sameOrigin()))
+                //.csrf(csrf -> csrf.ignoringRequestMatchers(new AntPathRequestMatcher("/h2-console/**")))
+                .csrf(csrf -> csrf .ignoringRequestMatchers(toH2Console()))
+                //.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req ->
                         req.requestMatchers(WHITE_LIST_URL)
                                 .permitAll()
-                                .requestMatchers("/quotes/**").hasAnyRole("USER", "ADMIN")
-                                .requestMatchers("/profiles/me/**").hasRole("USER")
-                                .requestMatchers(POST, "/profiles").hasRole("ADMIN")
-                                .requestMatchers("/profiles/**", "/profilesByName/**").hasRole("ADMIN")
-
-                                //.requestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**")).permitAll()
-                                .anyRequest()
-                                .authenticated()
+                                .requestMatchers(toH2Console()).permitAll()
+                                //.requestMatchers(mvc.pattern("api/user/**")).hasRole("USER")
+                                .requestMatchers("api/users/**").hasRole("ADMIN")
+                                .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
+                                .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .authenticationProvider(authenticationProvider)
