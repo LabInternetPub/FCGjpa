@@ -21,6 +21,7 @@ public class AuthenticationService {
   }
 
   public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    System.out.println("going to authenticate " + request.getUsername());
     authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(
             request.getUsername(),

@@ -2,6 +2,7 @@ package cat.tecnocampus.fgcstations.application;
 
 
 import cat.tecnocampus.fgcstations.application.DTOs.*;
+import cat.tecnocampus.fgcstations.application.exception.StationDoesNotExistsException;
 import cat.tecnocampus.fgcstations.application.exception.UserDoesNotExistsException;
 import cat.tecnocampus.fgcstations.application.mapper.MapperHelper;
 import cat.tecnocampus.fgcstations.domain.*;
@@ -36,8 +37,12 @@ public class FgcService {
         return stationDAO.findAll().stream().map(s -> new StationDTO(s.getName(), s.getLongitud(), s.getLatitud())).toList();
     }
 
-    public StationDTO getStation(String nom) {
-        return MapperHelper.stationToStationDTO(stationDAO.findByName(nom).orElseThrow());
+    public StationDTO getStationDTO(String name) {
+        return MapperHelper.stationToStationDTO(getStation(name));
+    }
+
+    private Station getStation(String name) {
+        return stationDAO.findByName(name).orElseThrow(() -> new StationDoesNotExistsException(name));
     }
 
     public UserDTO getUser(String username) {
@@ -59,7 +64,7 @@ public class FgcService {
         //get the users' favorite journeys
         users.forEach(u -> u.setFavoriteJourneyList(getFavoriteJourneys(u.getUsername())));
 
-        return users.stream().map(u -> MapperHelper.userToUserDTO(u)).toList();
+        return users.stream().map(MapperHelper::userToUserDTO).toList();
     }
 
     private List<FavoriteJourney> getFavoriteJourneys(String username) {
@@ -71,15 +76,15 @@ public class FgcService {
     }
 
     public List<JourneyDTO> getAllJourneys() {
-        return journeyDAO.findAll().stream().map(j -> MapperHelper.journeyToJourneyDTO(j)).toList();
+        return journeyDAO.findAll().stream().map(MapperHelper::journeyToJourneyDTO).toList();
     }
 
     public List<FavoriteJourneyDTO> getFavoriteJourneysDTO(String username) {
-        User user = userDAO.findById(username).orElseThrow(() -> new UserDoesNotExistsException("user " + username + " doesn't exist"));
+        User user = getDomainUser(username);
         List<FavoriteJourney> favoriteJourneys = favoriteJourneyDAO.findByUser(user);
         favoriteJourneys.forEach(f -> f.setStartList(dayTimeStartDao.findByFavoriteJourney_Id(f.getId())));
 
-        return favoriteJourneys.stream().map(f -> MapperHelper.favoriteJourneyToFavoriteJourneyDTO(f)).toList();
+        return favoriteJourneys.stream().map(MapperHelper::favoriteJourneyToFavoriteJourneyDTO).toList();
     }
     public void addUserFavoriteJourney(String username, FavoriteJourneyDTO favoriteJourneyDTO) {
         FavoriteJourney favoriteJourney = convertFavoriteJourneyDTO(username, favoriteJourneyDTO);
@@ -92,8 +97,8 @@ public class FgcService {
         FavoriteJourney favoriteJourney = new FavoriteJourney();
         favoriteJourney.setUser(getDomainUser(username));
         favoriteJourney.setId(UUID.randomUUID().toString());
-        Journey journey = new Journey(stationDAO.findByName(favoriteJourneyDTO.getOrigin()).orElseThrow(),
-                stationDAO.findByName(favoriteJourneyDTO.getDestination()).orElseThrow());
+        Journey journey = new Journey(getStation(favoriteJourneyDTO.getOrigin()),
+                getStation(favoriteJourneyDTO.getDestination()));
         favoriteJourney.setJourney(journey);
 
         List<DayTimeStart> dayTimeStarts = favoriteJourneyDTO.getDayTimes().stream().map(dt -> convertDayTimeStartDTO(dt, favoriteJourney)).toList();
@@ -117,7 +122,7 @@ public class FgcService {
     }
 
     public void saveFriends(UserFriendsDTO userFriendsDTO) {
-        User user = userDAO.findById(userFriendsDTO.getUsername()).orElseThrow(() -> new UserDoesNotExistsException("User " + userFriendsDTO.getUsername() + " doesn't exist"));
+        User user = getDomainUser(userFriendsDTO.getUsername());
         friendDAO.saveAll(MapperHelper.friendsDTOToUserListOfFriends(user, userFriendsDTO));
     }
 }

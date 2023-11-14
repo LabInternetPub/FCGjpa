@@ -20,6 +20,7 @@ public class AuthenticationController {
 
   @PostMapping("/authenticate")
   public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
+    System.out.println("Authenticating --------------------------------");
     AuthenticationResponse response = service.authenticate(request);
     //sending the token in the header and the body
     return ResponseEntity.ok()

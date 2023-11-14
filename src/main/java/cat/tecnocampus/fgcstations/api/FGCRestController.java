@@ -39,7 +39,7 @@ public class FGCRestController {
 
     @GetMapping("/stations/{nom}")
     public StationDTO getStation(@PathVariable String nom) {
-        return fgcService.getStation(nom);
+        return fgcService.getStationDTO(nom);
     }
 
     @PostMapping("/users/{userName}/favoriteJourney")

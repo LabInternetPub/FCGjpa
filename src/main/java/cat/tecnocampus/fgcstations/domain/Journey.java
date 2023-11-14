@@ -11,6 +11,14 @@ public class Journey {
     @EmbeddedId
     JourneyId id;
 
+    @ManyToOne()
+    @JoinColumn(name = "origin_station")
+    private Station origin;
+
+    @ManyToOne
+    @JoinColumn(name = "destination_station")
+    private Station destination;
+
     public Journey(Station origin, Station destination) {
         if (origin.sameStation(destination)) {
             throw new SameOriginDestinationException();
